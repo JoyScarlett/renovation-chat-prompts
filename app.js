@@ -1,5 +1,5 @@
 const ownerCategories = ["全部", "验房", "报价", "水电", "防水", "施工", "材料", "验收", "维权"];
-const salesCategories = ["全部", "破冰", "需求", "痛点", "方案", "报价", "邀约", "促单", "跟进", "成交"];
+const salesCategories = ["全部", "画像", "预算", "户型", "破冰", "需求", "痛点", "方案", "报价", "邀约", "促单", "跟进", "成交"];
 
 const ownerPrompts = [
   {
@@ -77,6 +77,30 @@ const ownerPrompts = [
 ];
 
 const salesPrompts = [
+  {
+    category: "画像",
+    title: "按客户画像开口",
+    when: "知道顾客是自住、出租、父母住或急入住时。",
+    text: "姐，我先按您的使用需求来判断，不按固定套餐硬套。如果是自住，重点是水电、防水、收纳和环保；如果是出租，重点是耐用、好打理、控制预算；如果是给父母住，重点是安全、防滑、动线方便。您这套更偏哪一种，我就按这个方向给您做建议。"
+  },
+  {
+    category: "预算",
+    title: "引导顾客说预算范围",
+    when: "顾客怕一说预算就被抬价。",
+    text: "姐，预算不是为了把钱花满，是为了帮您避开不合适的方案。您可以只说一个范围，比如基础入住、实用舒适、品质一点。回迁房装修最重要的是先分清必花的钱和可选的钱，这样后面才不会越装越超。"
+  },
+  {
+    category: "户型",
+    title: "让顾客发户型和面积",
+    when: "报价前需要先确认户型。",
+    text: "姐，方便的话把户型图或房本面积发我一下，最好再说一下几室几厅几卫。户型不同，水电点位、柜子、墙面面积和厨卫改造差别很大。我先按户型给您判断哪些项目是必须做的，哪些可以先不花钱。"
+  },
+  {
+    category: "跟进",
+    title: "按跟进天数推进下一步",
+    when: "聊了几天但顾客还没行动。",
+    text: "姐，咱们已经聊了几天了，我帮您捋一下现在最该定的不是马上花多少钱，而是先确定房子怎么装最合适。要不今天先把户型、预算和保留项目定一下，我给您做一版初步清单；您看完再决定要不要约量房，这样推进起来更踏实。"
+  },
   {
     category: "破冰",
     title: "刚加微信的自然开场",
@@ -203,8 +227,12 @@ const fields = {
   concern: document.querySelector("#concern"),
   recipient: document.querySelector("#recipient"),
   generatedPrompt: document.querySelector("#generatedPrompt"),
+  customerPersona: document.querySelector("#customerPersona"),
   customerStatus: document.querySelector("#customerStatus"),
   customerHouse: document.querySelector("#customerHouse"),
+  customerLayout: document.querySelector("#customerLayout"),
+  budgetRange: document.querySelector("#budgetRange"),
+  followDays: document.querySelector("#followDays"),
   customerFocus: document.querySelector("#customerFocus"),
   salesGoal: document.querySelector("#salesGoal"),
   salesTone: document.querySelector("#salesTone")
@@ -309,24 +337,29 @@ function buildOwnerPrompt() {
 }
 
 function buildSalesPrompt() {
+  const persona = fields.customerPersona.value;
   const status = fields.customerStatus.value;
   const house = fields.customerHouse.value.trim() || "回迁房，带基础装修，具体户型还需要进一步确认";
+  const layout = fields.customerLayout.value.trim() || "户型和面积还没完全确认";
+  const budget = fields.budgetRange.value;
+  const followDays = fields.followDays.value || "1";
   const focus = fields.customerFocus.value;
   const goal = fields.salesGoal.value;
   const tone = fields.salesTone.value;
 
-  fields.generatedPrompt.value = `姐您好，我先按您的情况简单整理一下。您现在属于“${status}”，房子情况大概是：${house}。您比较在意的是“${focus}”，所以我不会一上来给您推贵的方案，咱们先把能保留的、必须改的、容易后期花冤枉钱的地方弄清楚。
+  fields.generatedPrompt.value = `姐您好，我先按您的情况简单整理一下。您现在属于“${status}”，客户需求更偏“${persona}”。房子情况大概是：${house}；户型是：${layout}；预算目前是“${budget}”。咱们已经跟进到第 ${followDays} 天，您比较在意的是“${focus}”，所以我不会一上来给您推贵的方案，咱们先把能保留的、必须改的、容易后期花冤枉钱的地方弄清楚。
 
 我建议咱们下一步先做“${goal}”。这样做的好处是：
-1. 先判断原装修哪些能省，哪些不能省；
-2. 把水电、防水、墙面、门窗这些风险点提前看出来；
-3. 报价按项目列清楚，避免后面临时增项；
-4. 您和家里人也能有依据，不用只听别人说。
+1. 按您的客户画像决定装修重点，不乱推不适合的项目；
+2. 按预算范围先分清必做项和可选项，避免越聊越超；
+3. 按户型判断水电、防水、墙面、柜体这些真实工程量；
+4. 报价按项目列清楚，避免后面临时增项；
+5. 您和家里人也能有依据，不用只听别人说。
 
 您方便的话，先把户型图或现场照片发我几张。我先帮您做一个初步判断，再告诉您怎么装更省心、更划算。`;
 
   if (tone === "温和促单") {
-    fields.generatedPrompt.value += "\n\n如果您觉得方向没问题，我可以先帮您把量房/设计时间排上，后面方案和预算都还能继续细调，这样不耽误入住计划。";
+    fields.generatedPrompt.value += "\n\n如果您觉得方向没问题，我可以先帮您把量房/设计时间排上，后面方案和预算都还能继续细调。先把时间和优惠锁住，不耽误入住计划，也不用现在就把所有细节一次性定死。";
   }
 }
 

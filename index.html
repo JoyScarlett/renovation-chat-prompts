@@ -54,6 +54,17 @@
 
           <form class="profile hidden" id="salesProfile">
             <label>
+              客户画像
+              <select id="customerPersona">
+                <option value="自住改善型">自住改善型</option>
+                <option value="给父母住">给父母住</option>
+                <option value="婚房/新房入住">婚房/新房入住</option>
+                <option value="出租省钱型">出租省钱型</option>
+                <option value="急着入住型">急着入住型</option>
+                <option value="对比观望型">对比观望型</option>
+              </select>
+            </label>
+            <label>
               顾客状态
               <select id="customerStatus">
                 <option value="刚加微信，还没聊过">刚加微信，还没聊过</option>
@@ -66,6 +77,24 @@
             <label>
               顾客房子情况
               <input id="customerHouse" type="text" placeholder="例如：回迁房，三室两厅，带基础装修">
+            </label>
+            <label>
+              户型
+              <input id="customerLayout" type="text" placeholder="例如：三室两厅一卫，约 98 平">
+            </label>
+            <label>
+              预算范围
+              <select id="budgetRange">
+                <option value="还没定预算">还没定预算</option>
+                <option value="5 万以内，先基础入住">5 万以内，先基础入住</option>
+                <option value="5-8 万，实用舒适">5-8 万，实用舒适</option>
+                <option value="8-12 万，品质入住">8-12 万，品质入住</option>
+                <option value="12 万以上，重视效果和品质">12 万以上，重视效果和品质</option>
+              </select>
+            </label>
+            <label>
+              跟进天数
+              <input id="followDays" type="number" min="0" max="90" value="1">
             </label>
             <label>
               顾客最在意
@@ -105,11 +134,11 @@
             <h2>销售先问这 6 件事</h2>
             <ol>
               <li>房子在哪个小区，几室几厅，准备自住还是出租。</li>
-              <li>原装修想保留多少，哪些地方必须改。</li>
-              <li>什么时候入住，预算大概在哪个范围。</li>
-              <li>家里谁做主，谁最在意价格或质量。</li>
-              <li>现在最担心什么：增项、质量、效果、工期。</li>
-              <li>下一步是看方案、看报价，还是约量房。</li>
+              <li>客户画像属于自住、出租、父母住，还是急入住。</li>
+              <li>预算大概在哪个范围，能接受先分档方案吗。</li>
+              <li>户型和面积是多少，原装修想保留多少。</li>
+              <li>跟进到第几天，现在卡在价格、信任还是决策。</li>
+              <li>下一步是看方案、看报价、约量房，还是锁定金。</li>
             </ol>
           </div>
         </aside>
