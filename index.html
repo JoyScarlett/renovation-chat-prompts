@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>回迁房装修话术助手</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <aside class="sidebar" aria-label="装修资料">
+          <div class="brand">
+            <span class="brand-mark">装</span>
+            <div>
+              <h1>回迁房装修话术助手</h1>
+              <p>非毛坯房验收、沟通、砍价、确认细节，一句话帮你开口。</p>
+            </div>
+          </div>
+
+          <form class="profile" id="profileForm">
+            <label>
+              房屋状态
+              <select id="houseState">
+                <option value="非毛坯回迁房">非毛坯回迁房</option>
+                <option value="旧装修翻新">旧装修翻新</option>
+                <option value="局部改造">局部改造</option>
+              </select>
+            </label>
+            <label>
+              当前阶段
+              <select id="stage">
+                <option value="准备验房">准备验房</option>
+                <option value="找装修队">找装修队</option>
+                <option value="报价对比">报价对比</option>
+                <option value="施工中">施工中</option>
+                <option value="完工验收">完工验收</option>
+              </select>
+            </label>
+            <label>
+              城市/小区
+              <input id="community" type="text" placeholder="例如：郑州某回迁小区">
+            </label>
+            <label>
+              最担心的问题
+              <textarea id="concern" rows="4" placeholder="例如：怕水电乱改、报价增项、墙面空鼓、收口粗糙"></textarea>
+            </label>
+          </form>
+
+          <div class="quick-notes">
+            <h2>非毛坯回迁房先问这 6 件事</h2>
+            <ol>
+              <li>原装修哪些能保留，哪些必须拆。</li>
+              <li>水电点位是否够用，是否要局部改。</li>
+              <li>墙地砖、墙面、门窗有没有空鼓开裂。</li>
+              <li>卫生间厨房防水是否重新做闭水。</li>
+              <li>报价是否写清品牌、规格、数量、工艺。</li>
+              <li>增项必须先报价确认，不能先干后算。</li>
+            </ol>
+          </div>
+        </aside>
+
+        <section class="main-panel">
+          <header class="tool-header">
+            <div>
+              <p class="eyebrow">装修小白聊天提示词</p>
+              <h2>选场景，直接复制发给对方</h2>
+            </div>
+            <label class="search-box">
+              <span>搜索</span>
+              <input id="searchInput" type="search" placeholder="水电、防水、报价、验收、砍价">
+            </label>
+          </header>
+
+          <div class="category-tabs" id="categoryTabs" aria-label="话术分类"></div>
+
+          <section class="composer" aria-label="生成完整聊天话术">
+            <div>
+              <h3>一键生成开场白</h3>
+              <p>把你的房屋情况合进去，适合发给装修公司、工长、设计师或物业。</p>
+            </div>
+            <div class="composer-actions">
+              <select id="recipient">
+                <option value="装修公司">发给装修公司</option>
+                <option value="工长/施工队">发给工长/施工队</option>
+                <option value="设计师">发给设计师</option>
+                <option value="物业">发给物业</option>
+                <option value="材料商家">发给材料商家</option>
+              </select>
+              <button id="buildPrompt" type="button">生成</button>
+            </div>
+            <textarea id="generatedPrompt" rows="6" readonly></textarea>
+            <button class="copy-wide" type="button" data-copy-target="generatedPrompt">复制生成话术</button>
+          </section>
+
+          <section class="prompt-grid" id="promptGrid" aria-live="polite"></section>
+        </section>
+      </section>
+    </main>
+
+    <template id="promptCardTemplate">
+      <article class="prompt-card">
+        <div class="card-top">
+          <span class="tag"></span>
+          <button class="copy-btn" type="button">复制</button>
+        </div>
+        <h3></h3>
+        <p class="when"></p>
+        <textarea readonly></textarea>
+      </article>
+    </template>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+    <script src="app.js"></script>
+  </body>
+</html>
