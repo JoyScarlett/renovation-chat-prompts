@@ -14,11 +14,16 @@
             <span class="brand-mark">装</span>
             <div>
               <h1>回迁房装修话术助手</h1>
-              <p>非毛坯房验收、沟通、砍价、确认细节，一句话帮你开口。</p>
+              <p>业主沟通、销售成交、报价确认、施工验收，一句话帮你开口。</p>
             </div>
           </div>
 
-          <form class="profile" id="profileForm">
+          <div class="mode-switch" aria-label="使用场景">
+            <button class="active" type="button" data-mode="owner">业主装修话术</button>
+            <button type="button" data-mode="sales">销售成交话术</button>
+          </div>
+
+          <form class="profile" id="ownerProfile">
             <label>
               房屋状态
               <select id="houseState">
@@ -47,7 +52,44 @@
             </label>
           </form>
 
-          <div class="quick-notes">
+          <form class="profile hidden" id="salesProfile">
+            <label>
+              顾客状态
+              <select id="customerStatus">
+                <option value="刚加微信，还没聊过">刚加微信，还没聊过</option>
+                <option value="已经看过房，犹豫价格">已经看过房，犹豫价格</option>
+                <option value="想装修但怕麻烦">想装修但怕麻烦</option>
+                <option value="正在对比多家公司">正在对比多家公司</option>
+                <option value="快成交，需要临门一脚">快成交，需要临门一脚</option>
+              </select>
+            </label>
+            <label>
+              顾客房子情况
+              <input id="customerHouse" type="text" placeholder="例如：回迁房，三室两厅，带基础装修">
+            </label>
+            <label>
+              顾客最在意
+              <select id="customerFocus">
+                <option value="怕花冤枉钱">怕花冤枉钱</option>
+                <option value="怕施工质量差">怕施工质量差</option>
+                <option value="怕增项被坑">怕增项被坑</option>
+                <option value="想省心快点入住">想省心快点入住</option>
+                <option value="想装得好看实用">想装得好看实用</option>
+              </select>
+            </label>
+            <label>
+              你的成交动作
+              <select id="salesGoal">
+                <option value="约到店/约量房">约到店/约量房</option>
+                <option value="引导发户型图">引导发户型图</option>
+                <option value="解释报价">解释报价</option>
+                <option value="促成交定金">促成交定金</option>
+                <option value="成交后安抚">成交后安抚</option>
+              </select>
+            </label>
+          </form>
+
+          <div class="quick-notes" id="ownerNotes">
             <h2>非毛坯回迁房先问这 6 件事</h2>
             <ol>
               <li>原装修哪些能保留，哪些必须拆。</li>
@@ -58,17 +100,29 @@
               <li>增项必须先报价确认，不能先干后算。</li>
             </ol>
           </div>
+
+          <div class="quick-notes hidden" id="salesNotes">
+            <h2>销售先问这 6 件事</h2>
+            <ol>
+              <li>房子在哪个小区，几室几厅，准备自住还是出租。</li>
+              <li>原装修想保留多少，哪些地方必须改。</li>
+              <li>什么时候入住，预算大概在哪个范围。</li>
+              <li>家里谁做主，谁最在意价格或质量。</li>
+              <li>现在最担心什么：增项、质量、效果、工期。</li>
+              <li>下一步是看方案、看报价，还是约量房。</li>
+            </ol>
+          </div>
         </aside>
 
         <section class="main-panel">
           <header class="tool-header">
             <div>
-              <p class="eyebrow">装修小白聊天提示词</p>
-              <h2>选场景，直接复制发给对方</h2>
+              <p class="eyebrow" id="eyebrow">装修小白聊天提示词</p>
+              <h2 id="pageTitle">选场景，直接复制发给对方</h2>
             </div>
             <label class="search-box">
               <span>搜索</span>
-              <input id="searchInput" type="search" placeholder="水电、防水、报价、验收、砍价">
+              <input id="searchInput" type="search" placeholder="水电、防水、报价、验收、成交、促单">
             </label>
           </header>
 
@@ -76,10 +130,10 @@
 
           <section class="composer" aria-label="生成完整聊天话术">
             <div>
-              <h3>一键生成开场白</h3>
-              <p>把你的房屋情况合进去，适合发给装修公司、工长、设计师或物业。</p>
+              <h3 id="composerTitle">一键生成开场白</h3>
+              <p id="composerHint">把你的房屋情况合进去，适合发给装修公司、工长、设计师或物业。</p>
             </div>
-            <div class="composer-actions">
+            <div class="composer-actions owner-recipient">
               <select id="recipient">
                 <option value="装修公司">发给装修公司</option>
                 <option value="工长/施工队">发给工长/施工队</option>
@@ -89,7 +143,15 @@
               </select>
               <button id="buildPrompt" type="button">生成</button>
             </div>
-            <textarea id="generatedPrompt" rows="6" readonly></textarea>
+            <div class="composer-actions sales-recipient hidden">
+              <select id="salesTone">
+                <option value="自然亲切">自然亲切</option>
+                <option value="专业稳重">专业稳重</option>
+                <option value="温和促单">温和促单</option>
+              </select>
+              <button id="buildSalesPrompt" type="button">生成</button>
+            </div>
+            <textarea id="generatedPrompt" rows="7" readonly></textarea>
             <button class="copy-wide" type="button" data-copy-target="generatedPrompt">复制生成话术</button>
           </section>
 
