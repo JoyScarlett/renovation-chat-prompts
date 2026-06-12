@@ -1,5 +1,5 @@
 const ownerCategories = ["全部", "验房", "报价", "水电", "防水", "施工", "材料", "验收", "维权"];
-const salesCategories = ["全部", "画像", "预算", "户型", "破冰", "需求", "痛点", "方案", "报价", "邀约", "促单", "跟进", "成交"];
+const salesCategories = ["全部", "画像", "预算", "户型", "破冰", "需求", "痛点", "方案", "报价", "邀约", "促单", "异议", "跟进", "成交"];
 
 const ownerPrompts = [
   {
@@ -100,6 +100,24 @@ const salesPrompts = [
     title: "按跟进天数推进下一步",
     when: "聊了几天但顾客还没行动。",
     text: "姐，咱们已经聊了几天了，我帮您捋一下现在最该定的不是马上花多少钱，而是先确定房子怎么装最合适。要不今天先把户型、预算和保留项目定一下，我给您做一版初步清单；您看完再决定要不要约量房，这样推进起来更踏实。"
+  },
+  {
+    category: "异议",
+    title: "顾客觉得价格贵",
+    when: "顾客说“有点贵”“别人家更便宜”。",
+    text: "姐，您觉得价格贵我能理解，装修不是小钱。咱们先别只看总价，我帮您拆开看：哪些是必须做的，哪些是可以后置的，哪些是材料和工艺差出来的钱。便宜不一定是真省钱，关键是后期别因为漏项、返工、增项多花。"
+  },
+  {
+    category: "异议",
+    title: "顾客说再对比几家",
+    when: "顾客暂时不想定，想继续看。",
+    text: "姐，多对比是对的。您对比的时候重点看四个地方：项目有没有写全、材料品牌型号清不清楚、水电防水怎么做、后期增项怎么约定。您也可以把别家的报价发我，我不贬低别人，只帮您看有没有漏项和风险。"
+  },
+  {
+    category: "异议",
+    title: "家里人还没商量好",
+    when: "顾客把决策推给家人。",
+    text: "姐，那您先别急着定。我可以把方案重点、预算范围、能保留和必须改的地方整理成一段文字，您转给家里人看。家里人最关心的一般是钱花在哪、有没有后期增项、质量有没有保障，咱们把这些讲清楚，商量起来就容易多了。"
   },
   {
     category: "破冰",
@@ -233,6 +251,7 @@ const fields = {
   customerLayout: document.querySelector("#customerLayout"),
   budgetRange: document.querySelector("#budgetRange"),
   followDays: document.querySelector("#followDays"),
+  customerObjection: document.querySelector("#customerObjection"),
   customerFocus: document.querySelector("#customerFocus"),
   salesGoal: document.querySelector("#salesGoal"),
   salesTone: document.querySelector("#salesTone")
@@ -342,12 +361,16 @@ function buildSalesPrompt() {
   const house = fields.customerHouse.value.trim() || "回迁房，带基础装修，具体户型还需要进一步确认";
   const layout = fields.customerLayout.value.trim() || "户型和面积还没完全确认";
   const budget = fields.budgetRange.value;
-  const followDays = fields.followDays.value || "1";
+  const followDays = Math.max(0, Number(fields.followDays.value || 1));
+  const objection = fields.customerObjection.value;
   const focus = fields.customerFocus.value;
   const goal = fields.salesGoal.value;
   const tone = fields.salesTone.value;
+  const followPlan = getFollowPlan(followDays, objection, goal);
 
-  fields.generatedPrompt.value = `姐您好，我先按您的情况简单整理一下。您现在属于“${status}”，客户需求更偏“${persona}”。房子情况大概是：${house}；户型是：${layout}；预算目前是“${budget}”。咱们已经跟进到第 ${followDays} 天，您比较在意的是“${focus}”，所以我不会一上来给您推贵的方案，咱们先把能保留的、必须改的、容易后期花冤枉钱的地方弄清楚。
+  fields.generatedPrompt.value = `姐您好，我先按您的情况简单整理一下。您现在属于“${status}”，客户需求更偏“${persona}”。房子情况大概是：${house}；户型是：${layout}；预算目前是“${budget}”。咱们已经跟进到第 ${followDays} 天，目前卡点是“${objection}”，您比较在意的是“${focus}”。
+
+${followPlan.opening}
 
 我建议咱们下一步先做“${goal}”。这样做的好处是：
 1. 按您的客户画像决定装修重点，不乱推不适合的项目；
@@ -356,11 +379,45 @@ function buildSalesPrompt() {
 4. 报价按项目列清楚，避免后面临时增项；
 5. 您和家里人也能有依据，不用只听别人说。
 
-您方便的话，先把户型图或现场照片发我几张。我先帮您做一个初步判断，再告诉您怎么装更省心、更划算。`;
+${followPlan.nextStep}`;
 
   if (tone === "温和促单") {
     fields.generatedPrompt.value += "\n\n如果您觉得方向没问题，我可以先帮您把量房/设计时间排上，后面方案和预算都还能继续细调。先把时间和优惠锁住，不耽误入住计划，也不用现在就把所有细节一次性定死。";
   }
+}
+
+function getFollowPlan(days, objection, goal) {
+  let opening = "所以我不会一上来给您推贵的方案，咱们先把能保留的、必须改的、容易后期花冤枉钱的地方弄清楚。";
+  let nextStep = "您方便的话，先把户型图或现场照片发我几张。我先帮您做一个初步判断，再告诉您怎么装更省心、更划算。";
+
+  if (days <= 1) {
+    nextStep = "今天先不急着谈定不定，您先把户型图或现场照片发我，我帮您判断原装修哪些能保留、哪些需要重点看。";
+  } else if (days <= 3) {
+    opening = "咱们已经初步聊过了，现在最重要的是把预算、户型和保留项目对齐，避免后面方案跑偏。";
+    nextStep = `我建议今天先推进“${goal}”，我给您整理一版清单，您转给家里人也好商量。`;
+  } else if (days <= 7) {
+    opening = "咱们已经跟进了几天，说明您确实有装修计划，只是还差一个更确定的判断依据。";
+    nextStep = "今天咱们就不泛泛聊了，我建议直接约一次量房或到店看报价明细，把价格、工艺和增项规则一次讲清楚。";
+  } else {
+    opening = "之前咱们聊过一段时间，我今天不催您，只是帮您把这套房装修这件事重新捋一下，避免一直拖着影响入住。";
+    nextStep = "如果您计划还在，我建议先做一次免费复盘：预算有没有变化、户型有没有新想法、哪些地方必须改。确认后我再给您更新方案。";
+  }
+
+  if (objection === "觉得价格贵") {
+    nextStep = "您先不用急着定，我可以把报价拆成必做项和可选项，帮您看哪里能省、哪里不能省，这样钱花在哪里会更清楚。";
+  } else if (objection === "家里人还没商量好") {
+    nextStep = "我可以先把方案重点和预算范围整理成一段文字，您直接转给家里人看；家里人有问题，我再逐条帮您解释。";
+  } else if (objection === "想再对比几家") {
+    nextStep = "您可以继续对比，我建议重点看报价项目是否写全、材料型号是否清楚、水电防水怎么做、增项怎么约定。您发我一份报价，我帮您看有没有漏项。";
+  } else if (objection === "担心施工质量") {
+    nextStep = "质量这块咱们可以重点看工艺标准、现场保护、阶段验收和售后责任。我可以先发您一份施工验收清单，让您知道每一步怎么把关。";
+  } else if (objection === "担心后期增项") {
+    nextStep = "增项这块可以提前约定：报价写清包含和不包含，现场变化先报价、您确认后再施工。我可以先给您看一版明细报价格式。";
+  } else if (objection === "没时间到店/量房") {
+    nextStep = "您如果暂时没时间到店，可以先发户型图和现场照片，我先线上给您做初步判断；等方向对了，再约一个您方便的时间。";
+  }
+
+  return { opening, nextStep };
 }
 
 async function copyText(text) {
